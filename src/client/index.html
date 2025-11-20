@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>OfficeHub - Employee Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Initialize ServiceNow globals and context -->
+    <sdk:now-ux-globals></sdk:now-ux-globals>
+    
+    <!-- Ensure ServiceNow session variables are available -->
+    <script type="text/javascript">
+        // Ensure ServiceNow globals are available before React app loads
+        window.addEventListener('load', function() {
+            // Debug logging
+            console.log('ServiceNow OfficeHub - Page loaded');
+            console.log('g_user available:', !!window.g_user);
+            console.log('g_ck available:', !!window.g_ck);
+            if (window.g_user) {
+                console.log('Current user:', window.g_user.userName);
+            }
+        });
+        
+        // Fallback user info if globals are not immediately available
+        if (!window.g_user && typeof NOW !== 'undefined' && NOW.user) {
+            window.g_user = NOW.user;
+        }
+    </script>
+    
+    <!-- Load the main React application -->
+    <script src="main.jsx" type="module"></script>
+</head>
+<body>
+    <div id="officehub-root">
+        <!-- Loading placeholder while React initializes -->
+        <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif;">
+            <div style="text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">🏢</div>
+                <h2>Loading OfficeHub...</h2>
+                <p>Please wait while we initialize your employee portal.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

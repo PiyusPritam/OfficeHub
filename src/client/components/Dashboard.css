@@ -1,0 +1,496 @@
+/* Enhanced Dashboard Styles */
+.dashboard {
+  padding: 1rem 0;
+}
+
+/* Error Message Styles */
+.error-message {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #f87171;
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  color: #dc2626;
+  margin: 2rem auto;
+  max-width: 500px;
+}
+
+.error-message h3 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.error-message p {
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.current-time {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Enhanced Status Card */
+.status-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.status-card .card-title {
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.status-overview {
+  text-align: center;
+}
+
+.status-badge-large {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-indicator {
+  font-size: 3rem;
+  display: block;
+}
+
+.status-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Progress Bar */
+.progress-section {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22d3ee);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  animation: progressPulse 2s infinite;
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.time-details {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.time-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.time-label {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.time-value {
+  font-weight: 600;
+}
+
+.hours-highlight {
+  color: #4ade80;
+  font-size: 1.1rem;
+}
+
+/* Enhanced Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: inherit;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.clock-action {
+  background: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%);
+  color: white;
+}
+
+.leave-action {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+}
+
+.timesheet-action {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+}
+
+.calendar-action {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: white;
+}
+
+.action-icon {
+  font-size: 2rem;
+  display: block;
+}
+
+.action-text {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Leave Balance Card */
+.leave-balance-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+}
+
+.balance-summary {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.balance-circle {
+  flex-shrink: 0;
+}
+
+.circle-progress {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.circular-chart {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #e2e8f0;
+  stroke-width: 3.8;
+}
+
+.circle {
+  fill: none;
+  stroke: #667eea;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  animation: progress 1s ease-out;
+}
+
+@keyframes progress {
+  0% {
+    stroke-dasharray: 0 100;
+  }
+}
+
+.balance-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.balance-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.balance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.balance-label {
+  font-weight: 500;
+  color: #64748b;
+}
+
+.balance-value {
+  font-weight: 600;
+  color: #334155;
+}
+
+.balance-value.used {
+  color: #ef4444;
+}
+
+.balance-value.remaining {
+  color: #22c55e;
+}
+
+/* Summary Stats */
+.summary-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 50px;
+  text-align: center;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #667eea;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* Events Card */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.event-item:hover {
+  transform: translateY(-2px);
+}
+
+.event-item.holiday {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+}
+
+.event-item.meeting {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 1px solid #3b82f6;
+}
+
+.event-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  text-align: center;
+}
+
+.event-info {
+  flex: 1;
+}
+
+.event-title {
+  font-weight: 600;
+  color: #374151;
+}
+
+.event-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Achievements */
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fef7ff 0%, #fce7f3 100%);
+  border-radius: 12px;
+  border: 1px solid #d946ef;
+  transition: transform 0.2s ease;
+}
+
+.achievement-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(217, 70, 239, 0.2);
+}
+
+.achievement-icon {
+  font-size: 2rem;
+  animation: bounce 2s infinite;
+}
+
+.achievement-info {
+  flex: 1;
+}
+
+.achievement-title {
+  font-weight: 600;
+  color: #374151;
+}
+
+.achievement-date {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.no-achievements,
+.no-events {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+  
+  .current-time {
+    font-size: 1.25rem;
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .balance-summary {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .summary-stats .stat {
+    text-align: center;
+  }
+}

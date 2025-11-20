@@ -1,0 +1,22 @@
+{
+    "name": "x-1599224-officehub",
+    "version": "1.0.0",
+    "description": "[BUILD AGENT GENERATED]:  All-purpose employee office management application with clock in/out, attendance tracking, leave management, timesheets, calendar integration, AI-powered HR chatbot, and mobile-first design for comprehensive workplace productivity",
+    "license": "UNLICENSED",
+    "scripts": {
+        "build": "now-sdk build",
+        "deploy": "now-sdk install",
+        "transform": "now-sdk transform",
+        "types": "now-sdk dependencies"
+    },
+    "devDependencies": {
+        "@servicenow/sdk": "4.0.2",
+        "@servicenow/glide": "26.0.1",
+        "eslint": "8.50.0",
+        "@servicenow/eslint-plugin-sdk-app-plugin": "4.0.2"
+    },
+    "dependencies": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
+    }
+}
