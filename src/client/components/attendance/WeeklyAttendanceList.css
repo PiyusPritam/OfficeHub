@@ -1,0 +1,272 @@
+/* Weekly Attendance List Styles - Based on Reference Design */
+
+.timeline-container {
+  padding: 20px 30px;
+  background: white;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 80px 120px 1fr 100px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 20px;
+  position: relative;
+}
+
+.timeline-row:last-child {
+  border-bottom: none;
+}
+
+/* Date Cell */
+.date-cell {
+  text-align: center;
+}
+
+.day {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.date {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.date.today {
+  background: #2196F3;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* Status Cell */
+.status-cell {
+  font-size: 13px;
+}
+
+.status-label {
+  color: #4CAF50;
+  font-weight: 500;
+  display: block;
+}
+
+.weekend-label {
+  color: #999;
+  font-weight: 500;
+  display: block;
+}
+
+.status-time {
+  color: #666;
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+/* Timeline Bar */
+.timeline-bar {
+  position: relative;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.timeline-track {
+  width: 100%;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  position: relative;
+}
+
+.timeline-segment {
+  position: absolute;
+  height: 4px;
+  border-radius: 2px;
+  top: 0;
+}
+
+.work-segment {
+  background: linear-gradient(90deg, #4CAF50, #ff9800);
+}
+
+.weekend-segment {
+  background: #ffd54f;
+}
+
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #4CAF50;
+  position: absolute;
+  top: -2px;
+  z-index: 2;
+}
+
+.timeline-dot.end-dot {
+  border-color: #ff9800;
+}
+
+.end-time {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Hours Cell */
+.hours-cell {
+  text-align: right;
+}
+
+.hours-worked {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.hours-label {
+  font-size: 12px;
+  color: #999;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .timeline-container {
+    padding: 15px 20px;
+  }
+  
+  .timeline-row {
+    grid-template-columns: 60px 100px 1fr 80px;
+    gap: 15px;
+    padding: 12px 0;
+  }
+  
+  .day {
+    font-size: 12px;
+  }
+  
+  .date {
+    font-size: 16px;
+  }
+  
+  .date.today {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .status-cell {
+    font-size: 12px;
+  }
+  
+  .timeline-bar {
+    height: 32px;
+  }
+  
+  .hours-worked {
+    font-size: 13px;
+  }
+  
+  .hours-label {
+    font-size: 11px;
+  }
+  
+  .end-time {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .timeline-container {
+    padding: 15px;
+  }
+  
+  .timeline-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 15px 0;
+    text-align: center;
+  }
+  
+  .timeline-bar {
+    order: 3;
+    margin: 10px 0;
+  }
+  
+  .hours-cell {
+    order: 4;
+    text-align: center;
+  }
+  
+  .status-cell {
+    order: 2;
+  }
+  
+  .end-time {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+  }
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .timeline-container {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .timeline-row {
+  border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .day {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .date {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .status-label {
+  color: #34d399;
+}
+
+[data-theme="dark"] .weekend-label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .status-time {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .timeline-track {
+  background: #475569;
+}
+
+[data-theme="dark"] .end-time {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .hours-worked {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .hours-label {
+  color: #94a3b8;
+}

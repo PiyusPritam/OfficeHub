@@ -1,0 +1,144 @@
+/* Attendance Summary Bar Styles - Based on Reference Design */
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 20px 30px;
+  background: #fafafa;
+  border-top: 1px solid #e0e0e0;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+}
+
+.legend-present {
+  background: #2196F3;
+}
+
+.legend-onduty {
+  background: #ff9800;
+}
+
+.legend-paid {
+  background: #9C27B0;
+}
+
+.legend-holidays {
+  background: #F44336;
+}
+
+.legend-weekend {
+  background: #ffd54f;
+}
+
+.legend-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.legend-count {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Footer */
+.footer-info {
+  padding: 15px 30px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  text-align: right;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .legend {
+    gap: 20px;
+    padding: 15px 20px;
+    justify-content: center;
+  }
+  
+  .legend-item {
+    gap: 6px;
+  }
+  
+  .legend-color {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .legend-label,
+  .legend-count {
+    font-size: 12px;
+  }
+  
+  .footer-info {
+    padding: 12px 20px;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .legend {
+    gap: 15px;
+    padding: 15px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .legend-item {
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .legend-item:last-child {
+    border-bottom: none;
+  }
+  
+  .legend-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .footer-info {
+    padding: 12px 15px;
+    font-size: 12px;
+  }
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .legend {
+  background: #334155;
+  border-top-color: #475569;
+}
+
+[data-theme="dark"] .legend-label {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .legend-count {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .footer-info {
+  background: #1e293b;
+  border-top-color: #475569;
+  color: #cbd5e1;
+}

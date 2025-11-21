@@ -45,6 +45,10 @@ declare global {
                         table: 'sys_security_acl'
                         id: 'e52bab30d21542e899ae4b644be81336'
                     }
+                    'attendance-summary-page': {
+                        table: 'sys_ui_page'
+                        id: 'bbbe790095014ee0b76d06781acd8a7c'
+                    }
                     bom_json: {
                         table: 'sys_module'
                         id: '35b8da18d32b4d71be4d75d31c61d1ea'
@@ -65,6 +69,11 @@ declare global {
                     comment_mentions: {
                         table: 'sys_script'
                         id: '169df3a5499746ea9811890a02a2e127'
+                    }
+                    'components/AIChatbot.css': {
+                        table: 'sys_ux_theme_asset'
+                        id: '2bcf7dc7ac234f339235e4cab6d89608'
+                        deleted: true
                     }
                     coverage_request_create: {
                         table: 'sys_security_acl'
@@ -161,6 +170,7 @@ declare global {
                     'OfficeHubApp.css': {
                         table: 'sys_ux_theme_asset'
                         id: '0bb634f14e7040fbaffc75b41112b32e'
+                        deleted: true
                     }
                     package_json: {
                         table: 'sys_module'
@@ -358,6 +368,42 @@ declare global {
                     wellness_resource_write: {
                         table: 'sys_security_acl'
                         id: 'e70c023834c94061b26d8694961c2dd9'
+                    }
+                    'x_1599224_officehu/____insertStyle-BamvSEyN': {
+                        table: 'sys_ux_lib_asset'
+                        id: '6498473d260244c88087b18c8ebbc3c2'
+                        deleted: true
+                    }
+                    'x_1599224_officehu/____insertStyle-BamvSEyN.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'd646c7a37b8848268861d9e509bd36fb'
+                        deleted: true
+                    }
+                    'x_1599224_officehu/attendance-main': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'ad94c7f9a90e4daa94a83df5e6cfd2de'
+                    }
+                    'x_1599224_officehu/attendance-main.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: '7ad0b344f0b3454dbbb31ac3bafda47c'
+                    }
+                    'x_1599224_officehu/AttendanceSummaryApp-BBAxNKhE': {
+                        table: 'sys_ux_lib_asset'
+                        id: '8a0e2d86ec014f5bb29bbffd61c5860f'
+                    }
+                    'x_1599224_officehu/AttendanceSummaryApp-BBAxNKhE.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'b8a8aa3419b945adb8d19798e40efd92'
+                    }
+                    'x_1599224_officehu/AttendanceSummaryApp-D5280rSy': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'dc03240bd4c245a8a563cc249f3c1b90'
+                        deleted: true
+                    }
+                    'x_1599224_officehu/AttendanceSummaryApp-D5280rSy.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'e72dc3378c2c45daab3c23752e6e8375'
+                        deleted: true
                     }
                     'x_1599224_officehu/main': {
                         table: 'sys_ux_lib_asset'

@@ -1,0 +1,234 @@
+/* Attendance Header Styles - Based on Reference Design */
+
+.attendance-header-container {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Header Tabs */
+.header-tabs {
+  display: flex;
+  gap: 30px;
+  padding: 20px 30px 0;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab {
+  padding: 10px 0;
+  color: #666;
+  cursor: pointer;
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tab.active {
+  color: #1976d2;
+  border-bottom: 2px solid #1976d2;
+  margin-bottom: -2px;
+}
+
+.tab:hover:not(.active) {
+  color: #333;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: #fafafa;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.date-nav {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  color: #666;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.date-nav:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.date-range {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  min-width: 180px;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.btn.active {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
+}
+
+.btn-primary {
+  background: #2196F3 !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background: #1976d2 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 20px;
+  }
+  
+  .header-tabs {
+    padding: 15px 20px 0;
+    gap: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .header-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .tab {
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  
+  .toolbar-actions {
+    gap: 8px;
+  }
+  
+  .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    min-width: 36px;
+  }
+  
+  .date-range {
+    font-size: 13px;
+    min-width: auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-tabs {
+    gap: 15px;
+    padding: 15px 15px 0;
+  }
+  
+  .toolbar {
+    padding: 15px;
+  }
+  
+  .date-picker {
+    gap: 10px;
+  }
+  
+  .toolbar-actions {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 32px;
+  }
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .attendance-header-container {
+  background: #1e293b;
+  border-bottom-color: #475569;
+}
+
+[data-theme="dark"] .header-tabs {
+  border-bottom-color: #475569;
+}
+
+[data-theme="dark"] .tab {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .tab.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
+[data-theme="dark"] .toolbar {
+  background: #334155;
+}
+
+[data-theme="dark"] .date-nav {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .date-nav:hover {
+  background: #475569;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .date-range {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .btn {
+  background: #1e293b;
+  border-color: #475569;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .btn:hover {
+  background: #334155;
+  border-color: #64748b;
+}
+
+[data-theme="dark"] .btn.active {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #93c5fd;
+}

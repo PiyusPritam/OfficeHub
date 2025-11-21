@@ -1,493 +1,319 @@
-import React, { useState, useEffect } from 'react'
-import { EmployeeService } from '../services/EmployeeService.js'
-import './Dashboard.css'
+import React, { useState, useEffect } from 'react';
+import { EmployeeService } from '../services/EmployeeService.js';
+import './Dashboard.css';
 
-export default function Dashboard({ onNavigate }) {
+export default function Dashboard({ currentUser, onNavigate }) {
   const [dashboardData, setDashboardData] = useState({
-    todayAttendance: null,
-    weeklyHours: 0,
-    upcomingEvents: [],
-    pendingLeaveRequests: 0,
-    achievements: [],
-    leaveBalance: {
-      total: 25,
-      used: 0,
-      remaining: 25
-    },
-    holidays: []
-  })
-  const [loading, setLoading] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
-  const [error, setError] = useState(null)
-
-  const employeeService = new EmployeeService()
+    todaysAttendance: null,
+    leaveBalance: 25,
+    todaysProgress: 0,
+    recentNotifications: [],
+    quickStats: {
+      totalEmployees: 156,
+      presentToday: 142,
+      onLeave: 8,
+      pendingTasks: 23
+    }
+  });
+  
+  const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const employeeService = new EmployeeService();
 
   useEffect(() => {
-    initializeUser()
-  }, [])
+    loadDashboardData();
+    
+    // Update time every minute
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    
+    return () => clearInterval(timer);
+  }, [currentUser]);
 
-  const initializeUser = async () => {
+  const loadDashboardData = async () => {
+    if (!currentUser) return;
+    
     try {
-      setError(null)
-      const user = await employeeService.getOrCreateEmployee()
-      setCurrentUser(user)
-      await fetchDashboardData(user)
-    } catch (error) {
-      console.error('Failed to initialize user:', error)
-      setError(`Failed to initialize: ${error.message}`)
-    }
-  }
-
-  const fetchDashboardData = async (user) => {
-    if (!user) return
-
-    try {
-      const userSysId = user.sys_id
-
-      // Fetch today's attendance
-      const today = new Date().toISOString().split('T')[0]
-      const attendanceData = await employeeService.apiCall(
-        `/api/now/table/x_1599224_officehu_attendance?sysparm_query=user=${userSysId}^date=${today}&sysparm_limit=1&sysparm_display_value=all`
-      ).catch(err => {
-        console.warn('Could not fetch attendance:', err)
-        return { result: [] }
-      })
+      setLoading(true);
       
-      // Fetch recent achievements
-      const achievementsData = await employeeService.apiCall(
-        `/api/now/table/x_1599224_officehu_achievement?sysparm_query=user=${userSysId}&sysparm_limit=5&sysparm_display_value=all&sysparm_query=ORDERBYDESCearned_date`
-      ).catch(err => {
-        console.warn('Could not fetch achievements:', err)
-        return { result: [] }
-      })
-
-      // Fetch leave requests for balance calculation
-      const leaveData = await employeeService.apiCall(
-        `/api/now/table/x_1599224_officehu_leave_request?sysparm_query=user=${userSysId}^status=approved&sysparm_display_value=all`
-      ).catch(err => {
-        console.warn('Could not fetch leave requests:', err)
-        return { result: [] }
-      })
-
-      // Calculate leave balance
-      const usedDays = leaveData.result?.reduce((total, request) => {
-        const days = typeof request.days_requested === 'object' ? 
-          parseInt(request.days_requested.display_value) : 
-          parseInt(request.days_requested || 0)
-        return total + days
-      }, 0) || 0
-
-      // Fetch upcoming holidays/events
-      const nowDate = new Date().toISOString().split('T')[0]
-      const eventsData = await employeeService.apiCall(
-        `/api/now/table/x_1599224_officehu_event?sysparm_query=start_date>=${nowDate}^event_type=holiday^ORis_company_wide=true&sysparm_limit=5&sysparm_display_value=all&sysparm_query=ORDERBYstart_date`
-      ).catch(err => {
-        console.warn('Could not fetch events:', err)
-        return { result: [] }
-      })
-
-      setDashboardData({
-        todayAttendance: attendanceData.result?.[0] || null,
-        achievements: achievementsData.result || [],
-        leaveBalance: {
-          total: 25,
-          used: usedDays,
-          remaining: 25 - usedDays
-        },
-        weeklyHours: 32.5, // This would be calculated from timesheet data
-        upcomingEvents: eventsData.result || [],
-        pendingLeaveRequests: 0,
-        holidays: eventsData.result?.filter(event => {
-          const eventType = typeof event.event_type === 'object' ? 
-            event.event_type.display_value : event.event_type
-          return eventType === 'holiday'
-        }) || []
-      })
+      // Load today's attendance
+      const userSysId = typeof currentUser.sys_id === 'object' ? 
+        currentUser.sys_id.value : currentUser.sys_id;
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      const attendanceResponse = await employeeService.apiCall(
+        `/api/now/table/x_1599224_officehu_attendance?sysparm_query=user=${userSysId}^date=${today}&sysparm_display_value=all&sysparm_limit=1`
+      );
+      
+      setDashboardData(prev => ({
+        ...prev,
+        todaysAttendance: attendanceResponse.result?.[0] || null
+      }));
+      
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-      setError(`Failed to load dashboard: ${error.message}`)
-    }
-  }
-
-  const handleQuickAction = async (action) => {
-    if (!currentUser) {
-      setError('User session not found. Please refresh the page.')
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-    
-    try {
-      switch (action) {
-        case 'clockin':
-          await handleClockAction()
-          break
-        case 'leave':
-          onNavigate?.('leave')
-          break
-        case 'timesheet':
-          onNavigate?.('timesheets')
-          break
-        case 'calendar':
-          onNavigate?.('calendar')
-          break
-        default:
-          break
-      }
-    } catch (error) {
-      console.error('Error with quick action:', error)
-      setError(`Action failed: ${error.message}`)
+      console.error('Failed to load dashboard data:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleClockAction = async () => {
-    const userSysId = currentUser.sys_id
-    const now = new Date().toISOString()
+  const getProgressPercentage = () => {
+    const attendance = dashboardData.todaysAttendance;
+    if (!attendance) return 0;
     
-    if (!dashboardData.todayAttendance || !dashboardData.todayAttendance.clock_in) {
-      // Clock In
-      try {
-        await employeeService.apiCall('/api/now/table/x_1599224_officehu_attendance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            user: userSysId,
-            date: now,
-            clock_in: now,
-            work_location: 'office',
-            status: 'clocked_in'
-          })
-        })
-        
-        await fetchDashboardData(currentUser)
-        alert('Successfully clocked in!')
-      } catch (error) {
-        throw new Error(`Clock in failed: ${error.message}`)
-      }
-    } else if (dashboardData.todayAttendance.clock_in && !dashboardData.todayAttendance.clock_out) {
-      // Clock Out
-      try {
-        const attendanceSysId = typeof dashboardData.todayAttendance.sys_id === 'object' ? 
-          dashboardData.todayAttendance.sys_id.value : dashboardData.todayAttendance.sys_id
-        
-        await employeeService.apiCall(`/api/now/table/x_1599224_officehu_attendance/${attendanceSysId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            clock_out: now,
-            status: 'clocked_out'
-          })
-        })
-        
-        await fetchDashboardData(currentUser)
-        alert('Successfully clocked out!')
-      } catch (error) {
-        throw new Error(`Clock out failed: ${error.message}`)
-      }
+    const clockIn = attendance.clock_in?.value || attendance.clock_in;
+    const clockOut = attendance.clock_out?.value || attendance.clock_out;
+    
+    if (!clockIn) return 0;
+    if (clockOut) return 100;
+    
+    // Calculate progress based on current time vs shift duration
+    const now = new Date();
+    const shiftStart = new Date(`${new Date().toDateString()} 12:00 PM`);
+    const shiftEnd = new Date(`${new Date().toDateString()} 9:00 PM`);
+    
+    if (now < shiftStart) return 0;
+    if (now > shiftEnd) return 100;
+    
+    const totalShift = shiftEnd - shiftStart;
+    const elapsed = now - shiftStart;
+    
+    return Math.min(100, (elapsed / totalShift) * 100);
+  };
+
+  const quickActions = [
+    { 
+      id: 'clockinout', 
+      label: 'Clock In/Out', 
+      icon: '⏰', 
+      color: 'blue',
+      description: 'Track your time'
+    },
+    { 
+      id: 'leave', 
+      label: 'Request Leave', 
+      icon: '🏖️', 
+      color: 'green',
+      description: 'Time off request'
+    },
+    { 
+      id: 'timesheets', 
+      label: 'Log Hours', 
+      icon: '📋', 
+      color: 'purple',
+      description: 'Project hours'
+    },
+    { 
+      id: 'calendar', 
+      label: 'View Calendar', 
+      icon: '📅', 
+      color: 'pink',
+      description: 'Upcoming events'
+    },
+  ];
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return 'Not recorded';
+    try {
+      return new Date(timeStr).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch {
+      return 'Not recorded';
     }
-  }
+  };
 
-  const formatTime = (timeString) => {
-    if (!timeString) return 'Not recorded'
-    return new Date(timeString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-
-  const getCurrentStatus = () => {
-    const attendance = dashboardData.todayAttendance
-    if (!attendance) return 'Not clocked in'
+  const getAttendanceStatus = () => {
+    const attendance = dashboardData.todaysAttendance;
+    if (!attendance) return { status: 'Not Clocked In', color: 'text-gray-500' };
     
-    const clockIn = attendance.clock_in
-    const clockOut = attendance.clock_out
+    const clockIn = attendance.clock_in?.value || attendance.clock_in;
+    const clockOut = attendance.clock_out?.value || attendance.clock_out;
     
-    if (clockIn && !clockOut) return 'Currently working'
-    if (clockIn && clockOut) return 'Clocked out'
-    return 'Not clocked in'
-  }
-
-  const getWorkProgress = () => {
-    const attendance = dashboardData.todayAttendance
-    if (!attendance || !attendance.clock_in) return 0
+    if (clockOut) return { status: 'Clocked Out', color: 'text-red-500' };
+    if (clockIn) return { status: 'Clocked In', color: 'text-green-500' };
     
-    const clockIn = new Date(attendance.clock_in)
-    const now = new Date()
-    const workHours = (now - clockIn) / (1000 * 60 * 60) // hours
-    const standardWorkDay = 8 // 8 hours
-    
-    return Math.min((workHours / standardWorkDay) * 100, 100)
-  }
+    return { status: 'Not Clocked In', color: 'text-gray-500' };
+  };
 
-  const getClockActionText = () => {
-    const attendance = dashboardData.todayAttendance
-    if (!attendance || !attendance.clock_in) return '🕐 Clock In'
-    if (attendance.clock_in && !attendance.clock_out) return '🔚 Clock Out'
-    return '✅ Complete'
-  }
-
-  if (error) {
+  if (loading) {
     return (
-      <div className="dashboard">
-        <div className="error-message">
-          <h3>⚠️ Error</h3>
-          <p>{error}</p>
-          <button onClick={() => window.location.reload()} className="btn btn-primary">
-            Refresh Page
-          </button>
+      <div className="dashboard-loading">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading your dashboard...</p>
         </div>
       </div>
-    )
+    );
   }
+
+  const progressPercentage = getProgressPercentage();
+  const attendanceStatus = getAttendanceStatus();
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <h2 className="dashboard-title">Welcome back, {currentUser?.first_name || currentUser?.user_name || 'User'}!</h2>
-        <div className="current-time">
-          {new Date().toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          })}
+    <div className="modern-dashboard">
+      {/* Stats Grid */}
+      <div className="stats-grid">
+        <div className="stat-card blue">
+          <div className="stat-content">
+            <p className="stat-label">Total Employees</p>
+            <p className="stat-value">{dashboardData.quickStats.totalEmployees}</p>
+            <span className="stat-change positive">+12%</span>
+          </div>
+        </div>
+        
+        <div className="stat-card green">
+          <div className="stat-content">
+            <p className="stat-label">Present Today</p>
+            <p className="stat-value">{dashboardData.quickStats.presentToday}</p>
+            <span className="stat-change positive">+5%</span>
+          </div>
+        </div>
+        
+        <div className="stat-card yellow">
+          <div className="stat-content">
+            <p className="stat-label">On Leave</p>
+            <p className="stat-value">{dashboardData.quickStats.onLeave}</p>
+            <span className="stat-change negative">-2%</span>
+          </div>
+        </div>
+        
+        <div className="stat-card purple">
+          <div className="stat-content">
+            <p className="stat-label">Pending Tasks</p>
+            <p className="stat-value">{dashboardData.quickStats.pendingTasks}</p>
+            <span className="stat-change positive">+3%</span>
+          </div>
         </div>
       </div>
-      
-      <div className="dashboard-grid">
-        {/* Enhanced Status Card with Progress */}
-        <div className="card status-card">
+
+      {/* Content Cards */}
+      <div className="content-grid">
+        {/* Today's Progress */}
+        <div className="content-card">
           <h3 className="card-title">Today's Progress</h3>
-          <div className="status-content">
-            <div className="status-overview">
-              <div className="status-badge-large">
-                <span className={`status-indicator ${getCurrentStatus().replace(/\s+/g, '-').toLowerCase()}`}>
-                  {getCurrentStatus() === 'Currently working' ? '⚡' : 
-                   getCurrentStatus() === 'Clocked out' ? '✅' : '⏸️'}
-                </span>
-                <span className="status-text">{getCurrentStatus()}</span>
+          <div className="progress-content">
+            <div className="progress-circle-container">
+              <div className="progress-circle">
+                <svg viewBox="0 0 120 120" className="progress-svg">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    stroke="var(--border-color)"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="8"
+                    strokeDasharray={`${2 * Math.PI * 52}`}
+                    strokeDashoffset={`${2 * Math.PI * 52 * (1 - progressPercentage / 100)}`}
+                    strokeLinecap="round"
+                    className="progress-bar"
+                  />
+                </svg>
+                <div className="progress-text">
+                  <span className="progress-percentage">{Math.round(progressPercentage)}%</span>
+                </div>
               </div>
             </div>
             
-            {dashboardData.todayAttendance?.clock_in && !dashboardData.todayAttendance?.clock_out && (
-              <div className="progress-section">
-                <div className="progress-header">
-                  <span>Work Progress</span>
-                  <span>{Math.round(getWorkProgress())}%</span>
+            <div className="progress-status">
+              <p className="status-label">{attendanceStatus.status}</p>
+              <div className="progress-divider"></div>
+              <div className="progress-details">
+                <div className="progress-detail">
+                  <span>Clock In:</span>
+                  <span>{formatTime(dashboardData.todaysAttendance?.clock_in?.value || dashboardData.todaysAttendance?.clock_in)}</span>
                 </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${getWorkProgress()}%` }}
-                  ></div>
+                <div className="progress-detail">
+                  <span>Clock Out:</span>
+                  <span>{formatTime(dashboardData.todaysAttendance?.clock_out?.value || dashboardData.todaysAttendance?.clock_out)}</span>
                 </div>
               </div>
-            )}
-            
-            <div className="time-details">
-              <div className="time-item">
-                <span className="time-label">Clock In:</span>
-                <span className="time-value">
-                  {formatTime(dashboardData.todayAttendance?.clock_in)}
-                </span>
-              </div>
-              <div className="time-item">
-                <span className="time-label">Clock Out:</span>
-                <span className="time-value">
-                  {formatTime(dashboardData.todayAttendance?.clock_out)}
-                </span>
-              </div>
-              {dashboardData.todayAttendance?.total_hours && (
-                <div className="time-item">
-                  <span className="time-label">Hours Today:</span>
-                  <span className="time-value hours-highlight">
-                    {dashboardData.todayAttendance.total_hours} hrs
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>
 
-        {/* Enhanced Quick Actions */}
-        <div className="card actions-card">
-          <h3 className="card-title">Quick Actions</h3>
-          <div className="quick-actions">
-            <button 
-              className="action-btn clock-action"
-              onClick={() => handleQuickAction('clockin')}
-              disabled={loading}
-            >
-              <span className="action-icon">
-                {loading ? '⟳' : 
-                 !dashboardData.todayAttendance?.clock_in ? '🕐' :
-                 dashboardData.todayAttendance?.clock_in && !dashboardData.todayAttendance?.clock_out ? '🔚' : '✅'}
-              </span>
-              <span className="action-text">{getClockActionText()}</span>
-            </button>
-            
-            <button 
-              className="action-btn leave-action"
-              onClick={() => handleQuickAction('leave')}
-            >
-              <span className="action-icon">🏖️</span>
-              <span className="action-text">Request Leave</span>
-            </button>
-            
-            <button 
-              className="action-btn timesheet-action"
-              onClick={() => handleQuickAction('timesheet')}
-            >
-              <span className="action-icon">📋</span>
-              <span className="action-text">Log Hours</span>
-            </button>
-            
-            <button 
-              className="action-btn calendar-action"
-              onClick={() => handleQuickAction('calendar')}
-            >
-              <span className="action-icon">📅</span>
-              <span className="action-text">View Calendar</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Enhanced Leave Balance Card */}
-        <div className="card leave-balance-card">
+        {/* Leave Balance */}
+        <div className="content-card">
           <h3 className="card-title">Leave Balance</h3>
           <div className="leave-balance-content">
-            <div className="balance-summary">
-              <div className="balance-circle">
-                <div className="circle-progress">
-                  <svg viewBox="0 0 36 36" className="circular-chart">
-                    <path className="circle-bg"
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <path className="circle"
-                      strokeDasharray={`${(dashboardData.leaveBalance.remaining / dashboardData.leaveBalance.total) * 100}, 100`}
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                  </svg>
-                  <div className="balance-number">
-                    {dashboardData.leaveBalance.remaining}
-                  </div>
-                </div>
-              </div>
-              <div className="balance-details">
-                <div className="balance-item">
-                  <span className="balance-label">Total Allocated:</span>
-                  <span className="balance-value">{dashboardData.leaveBalance.total} days</span>
-                </div>
-                <div className="balance-item">
-                  <span className="balance-label">Used:</span>
-                  <span className="balance-value used">{dashboardData.leaveBalance.used} days</span>
-                </div>
-                <div className="balance-item">
-                  <span className="balance-label">Remaining:</span>
-                  <span className="balance-value remaining">{dashboardData.leaveBalance.remaining} days</span>
+            <div className="leave-circle-container">
+              <div className="leave-circle">
+                <svg viewBox="0 0 140 140" className="leave-svg">
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r="60"
+                    fill="none"
+                    stroke="var(--border-color)"
+                    strokeWidth="12"
+                  />
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r="60"
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="12"
+                    strokeDasharray={`${2 * Math.PI * 60}`}
+                    strokeDashoffset="0"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="leave-text">
+                  <span className="leave-days">{dashboardData.leaveBalance}</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Weekly Summary Card */}
-        <div className="card summary-card">
-          <h3 className="card-title">This Week</h3>
-          <div className="summary-stats">
-            <div className="stat">
-              <div className="stat-icon">⏰</div>
-              <div className="stat-info">
-                <div className="stat-value">{dashboardData.weeklyHours}</div>
-                <div className="stat-label">Hours Worked</div>
+            
+            <div className="leave-details">
+              <div className="leave-detail">
+                <p className="leave-detail-label">Total Allocated</p>
+                <p className="leave-detail-value">{dashboardData.leaveBalance} days</p>
               </div>
-            </div>
-            <div className="stat">
-              <div className="stat-icon">📅</div>
-              <div className="stat-info">
-                <div className="stat-value">5</div>
-                <div className="stat-label">Days Present</div>
+              <div className="leave-detail">
+                <p className="leave-detail-label">Used</p>
+                <p className="leave-detail-value red">0 days</p>
               </div>
-            </div>
-            <div className="stat">
-              <div className="stat-icon">🎯</div>
-              <div className="stat-info">
-                <div className="stat-value">98%</div>
-                <div className="stat-label">Punctuality</div>
+              <div className="leave-detail">
+                <p className="leave-detail-label">Remaining</p>
+                <p className="leave-detail-value green">{dashboardData.leaveBalance} days</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Upcoming Events & Holidays */}
-        <div className="card events-card">
-          <h3 className="card-title">Upcoming Events & Holidays</h3>
-          {dashboardData.upcomingEvents.length > 0 ? (
-            <div className="events-list">
-              {dashboardData.upcomingEvents.slice(0, 3).map((event, index) => {
-                const title = typeof event.title === 'object' ? event.title.display_value : event.title
-                const eventType = typeof event.event_type === 'object' ? event.event_type.display_value : event.event_type
-                const startDate = typeof event.start_date === 'object' ? event.start_date.value : event.start_date
-                
-                return (
-                  <div key={index} className={`event-item ${eventType}`}>
-                    <div className="event-icon">
-                      {eventType === 'holiday' ? '🏖️' : 
-                       eventType === 'meeting' ? '👥' : '📅'}
-                    </div>
-                    <div className="event-info">
-                      <div className="event-title">{title}</div>
-                      <div className="event-date">
-                        {new Date(startDate).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <p className="no-events">No upcoming events or holidays</p>
-          )}
-        </div>
-
-        {/* Achievements Card */}
-        <div className="card achievements-card">
-          <h3 className="card-title">Recent Achievements</h3>
-          {dashboardData.achievements.length > 0 ? (
-            <div className="achievements-list">
-              {dashboardData.achievements.map((achievement, index) => (
-                <div key={index} className="achievement-item">
-                  <div className="achievement-icon">🏆</div>
-                  <div className="achievement-info">
-                    <div className="achievement-title">
-                      {typeof achievement.title === 'object' ? achievement.title.display_value : achievement.title}
-                    </div>
-                    <div className="achievement-date">
-                      {new Date(typeof achievement.earned_date === 'object' ? achievement.earned_date.value : achievement.earned_date).toLocaleDateString()}
-                    </div>
-                  </div>
+        {/* Quick Actions */}
+        <div className="content-card full-width">
+          <h3 className="card-title">Quick Actions</h3>
+          <div className="quick-actions-grid">
+            {quickActions.map((action) => (
+              <button
+                key={action.id}
+                className={`action-card ${action.color}`}
+                onClick={() => onNavigate(action.id)}
+              >
+                <div className={`action-icon ${action.color}`}>
+                  <span>{action.icon}</span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="no-achievements">No achievements yet. Keep up the great work!</p>
-          )}
+                <span className="action-label">{action.label}</span>
+                <span className="action-description">{action.description}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
