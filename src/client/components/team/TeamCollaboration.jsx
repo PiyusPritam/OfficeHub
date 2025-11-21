@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { EmployeeService } from '../../services/EmployeeService.js'
+import TeamChat from './TeamChat.jsx'
 import './TeamCollaboration.css'
 
 export default function TeamCollaboration({ currentUser }) {
@@ -11,7 +12,7 @@ export default function TeamCollaboration({ currentUser }) {
     myTeam: 'General'
   })
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('availability')
+  const [activeTab, setActiveTab] = useState('chat')
   const [newCoverageRequest, setNewCoverageRequest] = useState({
     coverage_date: '',
     start_time: '',
@@ -118,22 +119,15 @@ export default function TeamCollaboration({ currentUser }) {
     try {
       const userSysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
 
-      await employeeService.apiCall('/api/now/table/x_1599224_officehu_coverage_request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-UserToken': window.g_ck
-        },
-        body: JSON.stringify({
-          requester: userSysId,
-          coverage_date: newCoverageRequest.coverage_date,
-          start_time: newCoverageRequest.start_time,
-          end_time: newCoverageRequest.end_time,
-          reason: newCoverageRequest.reason,
-          urgency: newCoverageRequest.urgency,
-          created_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
-        })
+      await employeeService.apiCall('/api/now/table/x_1599224_officehu_coverage_request', 'POST', {
+        requester: userSysId,
+        coverage_date: newCoverageRequest.coverage_date,
+        start_time: newCoverageRequest.start_time,
+        end_time: newCoverageRequest.end_time,
+        reason: newCoverageRequest.reason,
+        urgency: newCoverageRequest.urgency,
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
       })
 
       setNewCoverageRequest({
@@ -158,17 +152,10 @@ export default function TeamCollaboration({ currentUser }) {
       const userSysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
       const covReqId = typeof requestId === 'object' ? requestId.value : requestId
 
-      await employeeService.apiCall(`/api/now/table/x_1599224_officehu_coverage_request/${covReqId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-UserToken': window.g_ck
-        },
-        body: JSON.stringify({
-          volunteer: userSysId,
-          volunteered_at: new Date().toISOString(),
-          status: 'assigned'
-        })
+      await employeeService.apiCall(`/api/now/table/x_1599224_officehu_coverage_request/${covReqId}`, 'PATCH', {
+        volunteer: userSysId,
+        volunteered_at: new Date().toISOString(),
+        status: 'assigned'
       })
 
       await fetchTeamData()
@@ -221,6 +208,12 @@ export default function TeamCollaboration({ currentUser }) {
       </div>
 
       <div className="team-tabs">
+        <button 
+          className={activeTab === 'chat' ? 'active' : ''}
+          onClick={() => setActiveTab('chat')}
+        >
+          💬 Team Chat
+        </button>
         <button 
           className={activeTab === 'availability' ? 'active' : ''}
           onClick={() => setActiveTab('availability')}
@@ -312,6 +305,12 @@ export default function TeamCollaboration({ currentUser }) {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {activeTab === 'chat' && (
+        <div className="chat-tab-content">
+          <TeamChat currentUser={currentUser} />
         </div>
       )}
 

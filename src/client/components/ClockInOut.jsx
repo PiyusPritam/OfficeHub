@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { EmployeeService } from '../services/EmployeeService.js'
 import './ClockInOut.css'
 
-export default function ClockInOut({ user }) {
+export default function ClockInOut({ currentUser }) {
   const [todayAttendance, setTodayAttendance] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [loading, setLoading] = useState(false)
@@ -12,7 +12,7 @@ export default function ClockInOut({ user }) {
   const employeeService = new EmployeeService()
 
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       fetchTodayAttendance()
     }
     
@@ -22,17 +22,18 @@ export default function ClockInOut({ user }) {
     }, 1000)
     
     return () => clearInterval(timer)
-  }, [user])
+  }, [currentUser])
 
   const fetchTodayAttendance = async () => {
-    if (!user) return
+    if (!currentUser) return
 
     try {
       setError(null)
       const today = new Date().toISOString().split('T')[0]
+      const userSysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
       
       const data = await employeeService.apiCall(
-        `/api/now/table/x_1599224_officehu_attendance?sysparm_query=user=${user.sys_id}^date=${today}&sysparm_limit=1&sysparm_display_value=all`
+        `/api/now/table/x_1599224_officehu_attendance?sysparm_query=user=${userSysId}^date=${today}&sysparm_limit=1&sysparm_display_value=all`
       )
       
       setTodayAttendance(data.result?.[0] || null)
@@ -43,7 +44,7 @@ export default function ClockInOut({ user }) {
   }
 
   const handleClockIn = async () => {
-    if (!user) {
+    if (!currentUser) {
       setError('User session not found. Please refresh the page.')
       return
     }
@@ -53,20 +54,19 @@ export default function ClockInOut({ user }) {
     
     try {
       const now = new Date().toISOString()
+      const userSysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
       
-      await employeeService.apiCall('/api/now/table/x_1599224_officehu_attendance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          user: user.sys_id,
-          date: now,
+      await employeeService.apiCall(
+        '/api/now/table/x_1599224_officehu_attendance',
+        'POST',
+        {
+          user: userSysId,
+          date: now.split('T')[0], // Format as YYYY-MM-DD
           clock_in: now,
           work_location: workLocation,
           status: 'clocked_in'
-        })
-      })
+        }
+      )
       
       await fetchTodayAttendance()
       alert('Successfully clocked in!')
@@ -79,7 +79,7 @@ export default function ClockInOut({ user }) {
   }
 
   const handleClockOut = async () => {
-    if (!todayAttendance || !user) return
+    if (!todayAttendance || !currentUser) return
     
     setLoading(true)
     setError(null)
@@ -89,16 +89,14 @@ export default function ClockInOut({ user }) {
       const attendanceSysId = typeof todayAttendance.sys_id === 'object' ? 
         todayAttendance.sys_id.value : todayAttendance.sys_id
       
-      await employeeService.apiCall(`/api/now/table/x_1599224_officehu_attendance/${attendanceSysId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      await employeeService.apiCall(
+        `/api/now/table/x_1599224_officehu_attendance/${attendanceSysId}`,
+        'PATCH',
+        {
           clock_out: now,
           status: 'clocked_out'
-        })
-      })
+        }
+      )
       
       await fetchTodayAttendance()
       alert('Successfully clocked out!')
@@ -112,7 +110,8 @@ export default function ClockInOut({ user }) {
 
   const formatTime = (timeString) => {
     if (!timeString) return 'Not recorded'
-    return new Date(timeString).toLocaleTimeString('en-US', {
+    const value = typeof timeString === 'object' ? timeString.value : timeString
+    return new Date(value).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
@@ -122,8 +121,10 @@ export default function ClockInOut({ user }) {
 
   const isClocked = () => {
     if (!todayAttendance) return false
-    const clockIn = todayAttendance.clock_in
-    const clockOut = todayAttendance.clock_out
+    const clockIn = typeof todayAttendance.clock_in === 'object' ? 
+      todayAttendance.clock_in.value : todayAttendance.clock_in
+    const clockOut = typeof todayAttendance.clock_out === 'object' ? 
+      todayAttendance.clock_out.value : todayAttendance.clock_out
     return clockIn && !clockOut
   }
 

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { EmployeeService } from '../services/EmployeeService.js'
 import './LeaveRequests.css'
 
-export default function LeaveRequests({ user }) {
+export default function LeaveRequests({ currentUser }) {
   const [leaveRequests, setLeaveRequests] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
   const [leaveBalance, setLeaveBalance] = useState({
     vacation: { total: 15, used: 0, remaining: 15 },
     sick: { total: 10, used: 0, remaining: 10 },
@@ -23,19 +24,20 @@ export default function LeaveRequests({ user }) {
   const employeeService = new EmployeeService()
 
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       fetchLeaveRequests()
     }
-  }, [user])
+  }, [currentUser])
 
   const fetchLeaveRequests = async () => {
-    if (!user) return
+    if (!currentUser) return
 
     try {
       setError(null)
+      const userSysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
 
       const data = await employeeService.apiCall(
-        `/api/now/table/x_1599224_officehu_leave_request?sysparm_query=user=${user.sys_id}&sysparm_display_value=all&sysparm_query=ORDERBYDESCsys_created_on`
+        `/api/now/table/x_1599224_officehu_leave_request?sysparm_query=user=${userSysId}&sysparm_display_value=all&sysparm_query=ORDERBYDESCsys_created_on`
       )
       
       const requests = data.result || []
@@ -70,13 +72,14 @@ export default function LeaveRequests({ user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!user) {
+    if (!currentUser) {
       setError('User session not found. Please refresh the page.')
       return
     }
 
     setLoading(true)
     setError(null)
+    setSuccess(null)
     
     try {
       // Calculate days requested
@@ -93,13 +96,13 @@ export default function LeaveRequests({ user }) {
         return
       }
 
-      await employeeService.apiCall('/api/now/table/x_1599224_officehu_leave_request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          user: user.sys_id,
+      const userSysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
+
+      await employeeService.apiCall(
+        '/api/now/table/x_1599224_officehu_leave_request',
+        'POST',
+        {
+          user: userSysId,
           leave_type: formData.leave_type,
           start_date: formData.start_date,
           end_date: formData.end_date,
@@ -107,8 +110,8 @@ export default function LeaveRequests({ user }) {
           is_emergency: formData.is_emergency,
           days_requested: daysDiff,
           status: 'pending'
-        })
-      })
+        }
+      )
       
       setFormData({
         leave_type: 'vacation',
@@ -118,8 +121,8 @@ export default function LeaveRequests({ user }) {
         is_emergency: false
       })
       setShowForm(false)
+      setSuccess('Leave request submitted successfully!')
       await fetchLeaveRequests()
-      alert('Leave request submitted successfully!')
     } catch (error) {
       console.error('Error submitting leave request:', error)
       setError(`Failed to submit leave request: ${error.message}`)
@@ -150,7 +153,8 @@ export default function LeaveRequests({ user }) {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    const value = typeof dateString === 'object' ? dateString.value : dateString
+    return new Date(value).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -181,9 +185,12 @@ export default function LeaveRequests({ user }) {
   if (error) {
     return (
       <div className="leave-requests">
-        <div className="error-message">
-          <h3>⚠️ Error</h3>
-          <p>{error}</p>
+        <div className="error-alert">
+          <div className="alert-icon">⚠️</div>
+          <div className="alert-content">
+            <h3>Error</h3>
+            <p>{error}</p>
+          </div>
           <button onClick={() => window.location.reload()} className="btn btn-primary">
             Refresh Page
           </button>
@@ -203,6 +210,28 @@ export default function LeaveRequests({ user }) {
           {showForm ? '✕ Cancel' : '+ New Request'}
         </button>
       </div>
+
+      {/* Success Alert */}
+      {success && (
+        <div className="success-alert">
+          <div className="alert-icon">✅</div>
+          <div className="alert-content">
+            <p>{success}</p>
+          </div>
+          <button onClick={() => setSuccess(null)} className="alert-close">✕</button>
+        </div>
+      )}
+
+      {/* Error Alert */}
+      {error && (
+        <div className="error-alert">
+          <div className="alert-icon">⚠️</div>
+          <div className="alert-content">
+            <p>{error}</p>
+          </div>
+          <button onClick={() => setError(null)} className="alert-close">✕</button>
+        </div>
+      )}
 
       {/* Leave Balance Summary */}
       <div className="leave-balance-summary">

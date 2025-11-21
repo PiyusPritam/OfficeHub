@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import './Profile.css'
 
-export default function Profile({ user }) {
+export default function Profile({ currentUser }) {
   const [activeTab, setActiveTab] = useState('personal')
   
-  if (!user) {
+  if (!currentUser) {
     return (
       <div className="profile">
         <div className="error-message">
@@ -15,17 +15,31 @@ export default function Profile({ user }) {
     )
   }
 
+  // Extract values from ServiceNow objects or use direct values
+  const extractValue = (field) => {
+    if (!field) return ''
+    return typeof field === 'object' ? (field.display_value || field.value || '') : field
+  }
+
+  const firstName = extractValue(currentUser.first_name)
+  const lastName = extractValue(currentUser.last_name)
+  const email = extractValue(currentUser.email) || extractValue(currentUser.user_name)
+  const userName = extractValue(currentUser.user_name)
+  const fullName = extractValue(currentUser.full_name) || `${firstName} ${lastName}`.trim()
+  const title = extractValue(currentUser.title)
+  const sysId = typeof currentUser.sys_id === 'object' ? currentUser.sys_id.value : currentUser.sys_id
+
   return (
     <div className="profile">
       <div className="profile-header">
         <div className="profile-avatar-large">
-          {(user.first_name || user.user_name || 'U').charAt(0).toUpperCase()}
+          {(firstName || userName || 'U').charAt(0).toUpperCase()}
         </div>
         <div className="profile-info">
           <h1 className="profile-name">
-            {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.user_name}
+            {fullName || userName || 'Unknown User'}
           </h1>
-          <p className="profile-email">{user.email || user.user_name}</p>
+          <p className="profile-email">{email}</p>
           <div className="profile-badges">
             <span className="badge active">Active Employee</span>
             <span className="badge servicenow">ServiceNow User</span>
@@ -62,28 +76,32 @@ export default function Profile({ user }) {
               <div className="detail-item">
                 <span className="detail-label">Full Name:</span>
                 <span className="detail-value">
-                  {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Not provided'}
+                  {fullName || 'Not provided'}
                 </span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">First Name:</span>
-                <span className="detail-value">{user.first_name || 'Not provided'}</span>
+                <span className="detail-value">{firstName || 'Not provided'}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Last Name:</span>
-                <span className="detail-value">{user.last_name || 'Not provided'}</span>
+                <span className="detail-value">{lastName || 'Not provided'}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Email:</span>
-                <span className="detail-value">{user.email || user.user_name}</span>
+                <span className="detail-value">{email || 'Not provided'}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">User ID:</span>
-                <span className="detail-value">{user.user_name}</span>
+                <span className="detail-value">{userName}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Title:</span>
+                <span className="detail-value">{title || 'Not provided'}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">ServiceNow ID:</span>
-                <span className="detail-value">{user.sys_id}</span>
+                <span className="detail-value">{sysId}</span>
               </div>
             </div>
           </div>
@@ -192,6 +210,32 @@ export default function Profile({ user }) {
                   <option value="10to6">10:00 AM - 6:00 PM</option>
                   <option value="flexible">Flexible Hours</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="work-details">
+              <h4>Employment Details</h4>
+              <div className="detail-item">
+                <span className="detail-label">Employee ID:</span>
+                <span className="detail-value">{userName}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Department:</span>
+                <span className="detail-value">
+                  {extractValue(currentUser.department) || 'Not specified'}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Manager:</span>
+                <span className="detail-value">
+                  {extractValue(currentUser.manager) || 'Not assigned'}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Location:</span>
+                <span className="detail-value">
+                  {extractValue(currentUser.location) || 'Not specified'}
+                </span>
               </div>
             </div>
           </div>
